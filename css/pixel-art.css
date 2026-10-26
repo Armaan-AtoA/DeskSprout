@@ -1,0 +1,58 @@
+:root {
+  /* Classic Retro GameBoy Theme — Dark & Light variants */
+  --ink: #0f380f;
+  --shade: #306230;
+  --leaf: #8bac0f;
+  --light: #9bbc0f;
+  --paper: #d8e89a;
+  --alert: #b84a39;
+  --star: #c99700;
+
+  /* Theme-specific dynamic properties */
+  --bg-app: var(--shade);
+  --bg-panel: var(--paper);
+  --bg-panel-inset: #c7d889;
+  --text-main: var(--ink);
+  --text-dim: #306230;
+  --border-color: var(--ink);
+  --accent-glow: var(--leaf);
+  --button-bg: var(--leaf);
+  --button-hover: var(--light);
+  --badge-bg: var(--ink);
+  --badge-text: var(--paper);
+}
+
+[data-theme="dark"] {
+  --ink: #0a1b0a;
+  --shade: #183318;
+  --leaf: #4c8a2b;
+  --light: #8bac0f;
+  --paper: #1c361c;
+  --alert: #c74d3c;
+  --star: #f5b700;
+
+  --bg-app: #0c180c;
+  --bg-panel: #162816;
+  --bg-panel-inset: #102010;
+  --text-main: #dff0aa;
+  --text-dim: #8bac0f;
+  --border-color: #3f682f;
+  --accent-glow: #6cb03d;
+  --button-bg: #274827;
+  --button-hover: #376437;
+  --badge-bg: #3f682f;
+  --badge-text: #eef8cb;
+}
+
+canvas, img {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+body {
+  font-family: "Press Start 2P", monospace;
+  background: var(--bg-app);
+  color: var(--text-main);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}

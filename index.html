@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f380f">
+  <title>DeskSprout — 8-bit plant simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/pixel-art.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand-wrapper">
+      <svg class="leaf-logo" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="DeskSprout Leaf Logo">
+        <rect x="7" y="1" width="3" height="2" fill="#8cee68"/>
+        <rect x="5" y="3" width="6" height="2" fill="#8cee68"/>
+        <rect x="4" y="5" width="8" height="2" fill="#48a855"/>
+        <rect x="3" y="7" width="9" height="2" fill="#48a855"/>
+        <rect x="3" y="9" width="8" height="2" fill="#2b6e3b"/>
+        <rect x="4" y="11" width="6" height="2" fill="#2b6e3b"/>
+        <rect x="6" y="13" width="3" height="2" fill="#1c4028"/>
+        <rect x="7" y="14" width="2" height="2" fill="#5e321e"/>
+        <rect x="7" y="3" width="1" height="8" fill="#f0fec8"/>
+      </svg>
+      <h1>DeskSprout</h1>
+    </div>
+    <div class="header-controls">
+      <button id="theme-toggle-btn" class="button small" aria-label="Toggle light/dark theme">☀ LIGHT [T]</button>
+      <button id="new-plant-button" class="button small">NEW PLANT [N]</button>
+    </div>
+  </header>
+
+  <main class="game-layout">
+    <!-- Plant Canvas Viewport -->
+    <section class="panel plant-panel" aria-labelledby="plant-title">
+      <div class="panel-title">
+        <h2 id="plant-title">LUCKY BAMBOO</h2>
+        <span id="stage-label">STAGE 1 · SEED</span>
+      </div>
+      <div class="canvas-container">
+        <canvas id="plant-canvas" width="320" height="320" aria-label="HD Pixel Art Plant Simulator Canvas"></canvas>
+      </div>
+      <p id="environment-readout" class="environment-readout"></p>
+    </section>
+
+    <!-- Vitals Status Panel -->
+    <section class="panel status-panel" aria-labelledby="status-title">
+      <div class="panel-title">
+        <h2 id="status-title">VITALS</h2>
+      </div>
+      <div id="stats" class="stats" aria-live="polite"></div>
+      <p id="condition-message" class="condition-message"></p>
+    </section>
+
+    <!-- Merged Care & Supplies Console -->
+    <section class="panel care-panel" aria-labelledby="care-title">
+      <div class="panel-title">
+        <h2 id="care-title">CARE CONSOLE</h2>
+      </div>
+      <div class="merged-console">
+        <!-- Interactive Action Grid with Embedded Supplies -->
+        <div id="care-actions-grid" class="action-grid"></div>
+
+        <!-- Optional Hydroponic Vase / Soil Pot Switcher -->
+        <div id="vessel-control-box" class="vessel-control" style="display:none;"></div>
+
+        <!-- Relocation -->
+        <div class="relocate-group">
+          <label class="field-label" for="location-select">RELOCATE TO ROOM</label>
+          <select id="location-select" aria-label="Plant location"></select>
+        </div>
+
+        <!-- Save Management -->
+        <div class="save-row">
+          <button id="export-button" class="button small">EXPORT [E]</button>
+          <label class="button small file-button">
+            IMPORT
+            <input id="import-input" type="file" accept=".plant,.json,application/json">
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Garden Activity Log -->
+    <section class="panel log-panel" aria-labelledby="log-title">
+      <div class="panel-title">
+        <h2 id="log-title">GARDEN LOG</h2>
+      </div>
+      <ol id="log-list" class="log-list"></ol>
+    </section>
+  </main>
+
+  <!-- Bottom Actions Footer -->
+  <footer class="site-footer">
+    <button type="button" id="instructions-btn" class="button" aria-label="Game Instructions">
+      📖 INSTRUCTIONS
+    </button>
+    <a href="https://github.com/Armaan-AtoA/DeskSprout" target="_blank" rel="noopener noreferrer" class="button star-button" aria-label="Star DeskSprout on GitHub">
+      <span class="star-icon">★</span> STAR ON GITHUB
+    </a>
+  </footer>
+
+  <!-- Multi-Step New Plant Wizard Modal -->
+  <dialog id="plant-modal" class="modal">
+    <button type="button" class="modal-close" aria-label="Close dialog">✕</button>
+
+    <div class="wizard-steps">
+      <div id="step-dot-1" class="wizard-step-dot active"></div>
+      <div id="step-dot-2" class="wizard-step-dot"></div>
+      <div id="step-dot-3" class="wizard-step-dot"></div>
+      <div id="step-dot-4" class="wizard-step-dot"></div>
+    </div>
+
+    <!-- Step 1: Starting Form (Seed vs Bud) -->
+    <div id="wizard-page-1" class="wizard-page active">
+      <h2>STEP 1: CHOOSE STARTING FORM</h2>
+      <p>How would you like your journey with this sprout to begin?</p>
+      <div class="selection-grid">
+        <label class="selection-card selected" id="card-start-seed">
+          <input type="radio" name="startType" value="seed" checked>
+          <canvas id="seed-canvas" width="80" height="80"></canvas>
+          <strong>FRESH SEED</strong>
+          <span>Start from a seed in fertile ground. Experience the full lifecycle from early sprouting.</span>
+        </label>
+        <label class="selection-card" id="card-start-bud">
+          <input type="radio" name="startType" value="bud">
+          <canvas id="bud-canvas" width="80" height="80"></canvas>
+          <strong>YOUNG BUD</strong>
+          <span>Skip early dormancy. Start with an eager young sprout with tender emerging leaves.</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Step 2: Plant Species Carousel with Side Arrows -->
+    <div id="wizard-page-2" class="wizard-page">
+      <h2>STEP 2: SELECT PLANT SPECIES</h2>
+      <p>Each botanical species thrives in unique light and humidity conditions.</p>
+      <div class="carousel-container">
+        <button type="button" id="carousel-prev-btn" class="carousel-arrow" aria-label="Previous plant">◀</button>
+        <div class="plant-showcase">
+          <canvas id="plant-carousel-canvas" width="120" height="120"></canvas>
+          <div class="plant-info">
+            <h3 id="plant-carousel-name">LUCKY BAMBOO</h3>
+            <span id="plant-carousel-needs" class="needs-badge">Medium sun · Loves water</span>
+            <p id="plant-carousel-desc"></p>
+            <div id="plant-carousel-vase-tag" class="vase-support-tag">✓ Supports Glass Water Vase</div>
+            <small id="plant-carousel-count" style="color:var(--text-dim); margin-top:4px;"></small>
+          </div>
+        </div>
+        <button type="button" id="carousel-next-btn" class="carousel-arrow" aria-label="Next plant">▶</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Playstyle Selection -->
+    <div id="wizard-page-3" class="wizard-page">
+      <h2>STEP 3: CHOOSE PLAYSTYLE</h2>
+      <p>Select growth pacing to match your play frequency.</p>
+      <div class="selection-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <label class="selection-card selected" id="card-playstyle-fast">
+          <input type="radio" name="playstyle" value="fast" checked>
+          <canvas id="playstyle-canvas-fast" width="80" height="80"></canvas>
+          <strong>FAST-PACED</strong>
+          <span>Rapid growth in real-time minutes. Ideal for active sessions.</span>
+        </label>
+        <label class="selection-card" id="card-playstyle-arcade">
+          <input type="radio" name="playstyle" value="arcade">
+          <canvas id="playstyle-canvas-arcade" width="80" height="80"></canvas>
+          <strong>ARCADE</strong>
+          <span>A balanced weekly pace (~7 days average to full bloom).</span>
+        </label>
+        <label class="selection-card" id="card-playstyle-realistic">
+          <input type="radio" name="playstyle" value="realistic">
+          <canvas id="playstyle-canvas-realistic" width="80" height="80"></canvas>
+          <strong>REALISTIC</strong>
+          <span>Natural botanic pace (months). True gardening simulation.</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Step 4: Starting Location -->
+    <div id="wizard-page-4" class="wizard-page">
+      <h2>STEP 4: STARTING LOCATION</h2>
+      <p>Where will your new desk companion reside?</p>
+      <div style="margin-bottom: 18px;">
+        <label class="field-label" for="start-location">CHOOSE ROOM ENVIRONMENT</label>
+        <select id="start-location"></select>
+      </div>
+      <div id="wizard-vase-option" style="margin-bottom: 14px; padding: 10px; border: 2px solid var(--border-color); background: var(--bg-panel-inset);">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 8px;">
+          <input type="checkbox" id="wizard-vase-checkbox">
+          <span>Plant in Clear Glass Water Vase (Hydroponic)</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Wizard Navigation Actions -->
+    <div class="wizard-actions">
+      <button type="button" id="wizard-back-btn" class="button small">← BACK</button>
+      <button type="button" id="wizard-next-btn" class="button">NEXT →</button>
+    </div>
+  </dialog>
+
+  <!-- Notice Modal -->
+  <dialog id="notice-modal" class="modal notice">
+    <button type="button" class="modal-close" aria-label="Close notice">✕</button>
+    <h2 id="notice-title">NOTICE</h2>
+    <p id="notice-message"></p>
+    <div style="text-align: right; margin-top: 14px;">
+      <button id="notice-ok-btn" class="button">OK</button>
+    </div>
+  </dialog>
+
+  <!-- Game Instructions Modal -->
+  <dialog id="instructions-modal" class="modal">
+    <button type="button" class="modal-close" aria-label="Close instructions">✕</button>
+    <h2>DESKSPROUT MANUAL</h2>
+    <p>Complete guide to nurturing your digital desktop botanical companion.</p>
+    <div class="instructions-content">
+      <section class="instr-section">
+        <h3>🌱 GROWING & PACING</h3>
+        <ul>
+          <li><strong>Playstyles:</strong> <em>Fast-Paced</em> (rapid growth in real minutes for active sessions), <em>Arcade</em> (~7 days to full bloom), or <em>Realistic</em> (months of natural growth).</li>
+          <li><strong>Starting Form:</strong> Choose fresh seed to experience early sprouting, or start with an eager young bud.</li>
+          <li><strong>Milestones:</strong> When your sprout reaches each new growth stage, you earn +1 fertilizer!</li>
+        </ul>
+      </section>
+
+      <section class="instr-section">
+        <h3>💧 CARE CONSOLE</h3>
+        <ul>
+          <li><strong>Water [W]:</strong> Refreshes soil or vase moisture. Keep between 25% and 80%. Water is unlimited.</li>
+          <li><strong>Fertilize [F]:</strong> Boosts growth rate by +60% for 24 hours. Can be applied once per growth milestone.</li>
+          <li><strong>Bug Spray [B]:</strong> Eliminates attacking insects. 5 sprays per canister; free resupply delivered weekly!</li>
+          <li><strong>Prune [P]:</strong> Stays inactive until damaged leaves need cutting. Trims away scorched or rotted foliage to restore health.</li>
+          <li><strong>Glass Vase [V]:</strong> For plants that support hydroponics (e.g. Lucky Bamboo), toggle between soil pot and glass water vase.</li>
+        </ul>
+      </section>
+
+      <section class="instr-section">
+        <h3>⚠️ BOTANICAL HAZARDS & MECHANICS</h3>
+        <ul>
+          <li><strong>Leaf Scorch (Sunburn):</strong> Keeping a shade plant in harsh sunlight burns leaf tips. Relocate to softer light and prune burned leaves.</li>
+          <li><strong>Root & Stem Rot:</strong> Keeping soil saturated (>88% moisture) suffocates roots and causes black slimy rot. Let soil dry and prune rotted stems. (Glass vase hydroponics are aerated and immune to soil rot).</li>
+          <li><strong>Light Starvation:</strong> Plants in dark rooms lose chlorophyll, turning yellow and stalling growth. Move to a brighter room.</li>
+          <li><strong>Pests:</strong> Nibble on foliage causing health loss. Eliminate them with Bug Spray.</li>
+        </ul>
+      </section>
+
+      <section class="instr-section">
+        <h3>🏡 ROOMS & HOTKEYS</h3>
+        <ul>
+          <li><strong>Rooms:</strong> Computer Table, Sunny Window, Shaded Bookshelf, Humid Bathroom, Outdoor Garden, Warm Sunroom. Each room has unique light and humidity.</li>
+          <li><strong>Hotkeys:</strong> [W] Water · [F] Fertilize · [B] Bug Spray · [P] Prune · [V] Toggle Vase/Pot · [T] Light/Dark Theme · [N] New Plant · [E] Export Save · [◀ / ▶] Change Room / Plant.</li>
+        </ul>
+      </section>
+    </div>
+    <div style="text-align: right; margin-top: 14px;">
+      <button type="button" id="instructions-close-btn" class="button">GOT IT</button>
+    </div>
+  </dialog>
+
+  <!-- Application Scripts -->
+  <script defer src="js/config.js"></script>
+  <script defer src="js/storage.js"></script>
+  <script defer src="js/engine.js"></script>
+  <script defer src="js/ui.js"></script>
+  <script defer src="js/main.js"></script>
+</body>
+</html>
